@@ -27,7 +27,7 @@ const MultiSelector: FC<MultiSelectorProps> = (props) => {
         }
         return value;
     }
-    //看有没有默认值，如果有，则用默认值，如果没有，则置为空数组
+    //看有没有默认值，如果有，则用默认值，如果没有，则置为空数组，实现了一个可以将组件变为可受控组件的hook, 代码在./hooks/use-controllable-value.tsx
     const { state, setState } = useControllableValue<string[]>({ value: validValue(value), onChange, defaultValue });
     //处理选项变化
     const handleOptionChange = (checked: boolean, option: MultiSelectorOptionValue) => {

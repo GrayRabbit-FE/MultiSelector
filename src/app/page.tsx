@@ -20,7 +20,7 @@ export default function Demo() {
 
     const [columns, setColumns] = useState(3);
     const [enableSelectAll, setEnableSelectAll] = useState(true);
-    //这是一个测试页面，具体代码请看./components/multi-selector.tsx以及./components/number-stepper.tsx
+    //这是一个测试页面，具体代码请看./components ./types以及./hooks目录
     return (
         <>
             <div className="flex flex-col items-center justify-center min-h-screen py-2">
