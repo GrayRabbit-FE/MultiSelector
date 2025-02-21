@@ -32,7 +32,7 @@ const MultiSelectorOption: FC<MultiSelectorOptionProps> = (props) => {
 }
 const MultiSelector: FC<MultiSelectorProps> = (props) => {
   const { options, defaultValue, columns = 3, onChange = () => { }, enableSelectAll = false } = props;
-  //看有没有默认值，如果有，则用默认值，如果没有，则置为空
+  //看有没有默认值，如果有，则用默认值，如果没有，则置为空数组
   const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultValue || []);
   //处理选项变化
   const handleOptionChange = (checked: boolean, option: MultiSelectorOption) => {
@@ -81,7 +81,8 @@ const MultiSelector: FC<MultiSelectorProps> = (props) => {
               <div className="flex flex-col items-center justify-center gap-4" key={index}>
                 {
                   //第一列，并且有enableSelectAll，则添加一个全选选项
-                  index === 0 && enableSelectAll && <MultiSelectorOption
+                  index === 0 && enableSelectAll &&
+                  <MultiSelectorOption
                     label="Select All"
                     value="selectAll"
                     checked={selectedOptions.length === options.length}
@@ -129,9 +130,8 @@ export default function Demo() {
     { label: "Option 8", value: "option8" },
     { label: "Option 9", value: "option9" },
     { label: "Option 10", value: "option10" },
-   // { label: "Option 11", value: "option11" },
-
-  ]
+    // { label: "Option 11", value: "option11" },
+  ];
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen py-2">
