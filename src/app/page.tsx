@@ -1,5 +1,5 @@
 "use client"
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useEffect, useState } from "react";
 type MultiSelectorOption = {
   label: string;
   value: string;
@@ -9,6 +9,7 @@ type MultiSelectorProps = {
   defaultValue?: string[];
   enableSelectAll?: boolean;
   columns?: number;
+  value?: string[];
   onChange?: (selected: string[]) => void;
 }
 type MultiSelectorOptionProps = {
@@ -31,9 +32,21 @@ const MultiSelectorOption: FC<MultiSelectorOptionProps> = (props) => {
   )
 }
 const MultiSelector: FC<MultiSelectorProps> = (props) => {
-  const { options, defaultValue, columns = 3, onChange = () => { }, enableSelectAll = false } = props;
+  const { value, options, defaultValue = [], columns = 3, onChange = () => { }, enableSelectAll = false } = props;
   //看有没有默认值，如果有，则用默认值，如果没有，则置为空数组
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultValue || []);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(value || defaultValue);
+  const validPassInput = (value: any) => {
+    if(!value.length) return [];
+    for(let i = 0; i < value.length; i++) {
+      if(typeof value[i] !== 'string') {
+        return [];
+      }
+    }
+    return value;
+  }
+  useEffect(() => {
+    setSelectedOptions(validPassInput(value));
+  }, [value])
   //处理选项变化
   const handleOptionChange = (checked: boolean, option: MultiSelectorOption) => {
     if (checked) {
@@ -61,7 +74,9 @@ const MultiSelector: FC<MultiSelectorProps> = (props) => {
       //第一列和最后一列需要特殊处理，因为全选选项会占用一个位置，所以要少截取一个，
       //但在逻辑上，因为之前已经考虑全选的存在，所以逻辑上还是正常长度。而最后一列必须到结尾为止。其他的正常截取即可
       if (i === 0) {
-        return options.slice(start, end - selectAllGap);
+        //只有一列的时候不能特殊处理，否则最后一个就没了
+        const realGap = columns > 1 ? selectAllGap : 0;
+        return options.slice(start, end - realGap);
       } else if (i === columns - 1) {
         return options.slice(start - selectAllGap, end);
       } else {
@@ -70,10 +85,13 @@ const MultiSelector: FC<MultiSelectorProps> = (props) => {
     });
     return renderItems;
   }
+
+
   const renderItems = calculateColumns(options, columns, enableSelectAll);
+
+
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-4"></h1>
+
       <div className={`flex flex-row items-start  justify-center gap-4`}>
         {
           renderItems.map((item, index) => {
@@ -115,9 +133,45 @@ const MultiSelector: FC<MultiSelectorProps> = (props) => {
 
         }
       </div>
+  )
+}
+type NumberStepperProps = {
+  defaultValue?: number,
+  value?: number,
+  max?: number,
+  min?: number,
+  step?: number,
+  onChange?: (value: number) => void,
+}
+const NumberStepper: FC<NumberStepperProps> = (props) => {
+  const { value = 0, max, min = 0, step = 1, defaultValue = min, onChange = () => { } } = props;
+  const [inputValue, setInputValue] = useState(typeof value === "number" ? value : defaultValue);
+  //当value变化时，检查是否合法，不合法则返回默认值
+  const validPassInput = (newValue: number) => {
+    if (typeof max === "number" && newValue > max) {
+      return max;
+    }
+    if (typeof min === "number" && newValue < min) {
+      return min;
+    }
+    return newValue;
+  }
+  useEffect(() => {
+    setInputValue(validPassInput(value));
+  }, [value]);
+  const handleChange = (newValue: number) => {
+    setInputValue(validPassInput(newValue));
+    onChange(validPassInput(newValue));
+  }
+  return (
+    <div className="flex flex-row items-center justify-center gap-2 text-black">
+      <button onClick={() => handleChange(inputValue - step)} className="bg-gray-200 rounded-md px-2 py-1">-</button>
+      <div className="bg-gray-200 rounded-md px-2 py-1">{inputValue}</div>
+      <button onClick={() => handleChange(inputValue + step)} className="bg-gray-200 rounded-md px-2 py-1">+</button>
     </div>
   )
 }
+
 export default function Demo() {
   const options: MultiSelectorOption[] = [
     { label: "Option 1", value: "option1" },
@@ -132,11 +186,18 @@ export default function Demo() {
     { label: "Option 10", value: "option10" },
     // { label: "Option 11", value: "option11" },
   ];
+
+  const [columns, setColumns] = useState(3);
+  const [enableSelectAll, setEnableSelectAll] = useState(true);
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen py-2">
-        <h1 className="text-4xl font-bold mb-4">MultiSelector Demo</h1>
-        <MultiSelector enableSelectAll columns={3} options={options} onChange={(options) => { console.log(options) }} />
+        <h1 className="text-4xl font-bold mb-4">Code Test Demo</h1>
+        <MultiSelector enableSelectAll={enableSelectAll} columns={columns} options={options} onChange={(options) => { console.log(options) }} />
+        <div className="flex flex-row items-center justify-center gap-2 mt-4">
+          <input type="checkbox" checked={enableSelectAll} onChange={(e) => { setEnableSelectAll(e.target.checked) }} /> Enable Select All
+        </div>
+        <NumberStepper value={columns} max={4} min={1} step={1} onChange={(value) => { setColumns(value) }} />
       </div>
     </>
   );
