@@ -1,97 +1,36 @@
 "use client"
-import { FC, useState } from "react";
-type MultiSelectorOption = {
-  label: string;
-  value: string;
-}
-type MultiSelectorProps = {
-  options: MultiSelectorOption[];
-  defaultValue?: string[];
-  enableSelectAll?: boolean;
-  columns?: number;
-  onChange?: (selected: string[]) => void;
-}
-type MultiSelectorOptionProps = {
-  label: string;
-  value: string;
-  checked?: boolean;
-  onCheckedChange?: (checked: boolean, option: MultiSelectorOption) => void;
-}
-const MultiSelectorOption: FC<MultiSelectorOptionProps> = (props) => {
-  const { label, value, onCheckedChange = () => { }, checked = false} = props;
-  return (
-    <div>
-      <input
-        type="checkbox"
-        value={value}
-        checked={checked}
-        onChange={(e) => onCheckedChange(e.target.checked, { label, value: value })} />
-      <label>{label}</label>
-    </div>
-  )
-}
-const MultiSelector: FC<MultiSelectorProps> = (props) => {
-  const { options, defaultValue, columns = 3, onChange = () => { }, enableSelectAll = false } = props;
-  //看有没有默认值，如果有，则用默认值，如果没有，则置为空
-  // if(!(defaultValue instanceof Array)){
-
-  // }
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultValue || []);
-  const handleOptionChange = (checked: boolean, option: MultiSelectorOption) => {
-    if (checked) {
-      setSelectedOptions([option.value, ...selectedOptions]);
-      onChange([option.value, ...selectedOptions]);
-    } else {
-      setSelectedOptions(selectedOptions.filter((item) => item !== option.value));
-      onChange(selectedOptions.filter((item) => item !== option.value));
-    }
-  }
-  return (
-    <div className="flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-4"></h1>
-      <div className="flex flex-row items-center justify-center">
-        {
-          enableSelectAll && <MultiSelectorOption
-            label="Select All"
-            value="selectAll"
-            checked = {selectedOptions.length === options.length}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                setSelectedOptions(options.map((option) => option.value));
-                onChange(options.map((option) => option.value));
-              } else {
-                setSelectedOptions([]);
-                onChange([]);
-              }
-            }} />
-        }
-        {
-          options.map((option) => {
-            return (
-                <MultiSelectorOption
-                  label={option.label}
-                  value={option.value}
-                  checked={selectedOptions.includes(option.value)}
-                  onCheckedChange={handleOptionChange} />
-              )
-          })
-        }
-      </div>
-    </div>
-  )
-}
+import { useState } from "react";
+import { MultiSelectorOptionValue } from "./types/component-types";
+import NumberStepper from "./components/number-stepper";
+import MultiSelector from "./components/multi-selector";
 export default function Demo() {
-  const options: MultiSelectorOption[] = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
-  ]
-  return (
-    <>
-      <div className="flex flex-col items-center justify-center min-h-screen py-2">
-        <h1 className="text-4xl font-bold mb-4">MultiSelector Demo</h1>
-        <MultiSelector enableSelectAll options={options} onChange={(options) => { console.log(options) }} />
-      </div>
-    </>
-  );
+    const options: MultiSelectorOptionValue[] = [
+        { label: "Option 1", value: "option1" },
+        { label: "Option 2", value: "option2" },
+        { label: "Option 3", value: "option3" },
+        { label: "Option 4", value: "option4" },
+        { label: "Option 5", value: "option5" },
+        { label: "Option 6", value: "option6" },
+        { label: "Option 7", value: "option7" },
+        { label: "Option 8", value: "option8" },
+        { label: "Option 9", value: "option9" },
+        { label: "Option 10", value: "option10" },
+        // { label: "Option 11", value: "option11" },
+    ];
+
+    const [columns, setColumns] = useState(3);
+    const [enableSelectAll, setEnableSelectAll] = useState(true);
+    //这是一个测试页面，具体代码请看./components ./types以及./hooks目录
+    return (
+        <>
+            <div className="flex flex-col items-center justify-center min-h-screen py-2">
+                <h1 className="text-4xl font-bold mb-4">Code Test Demo</h1>
+                <MultiSelector defaultValue={["option1", "option2", "option7"]} onChange={e => console.log(e)} enableSelectAll={enableSelectAll} columns={columns} options={options} />
+                <div className="flex flex-row items-center justify-center gap-2 mt-4">
+                    <input type="checkbox" checked={enableSelectAll} onChange={(e) => { setEnableSelectAll(e.target.checked) }} /> Enable Select All
+                </div>
+                <NumberStepper value={columns} max={4} min={1} step={1} onChange={(value) => { setColumns(value) }} />
+            </div>
+        </>
+    );
 }
